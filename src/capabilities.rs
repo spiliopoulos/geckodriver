@@ -65,6 +65,7 @@ impl FirefoxOptions {
     }
 
     fn load_profile(options: &BTreeMap<String, Json>) -> WebDriverResult<Option<Profile>> {
+        let profile: Profile;
         if let Some(profile_path) = options.get("profile_path") {
             let profile_path_buf = PathBuf::from(try!(profile_path
                                                             .as_string()
@@ -72,10 +73,10 @@ impl FirefoxOptions {
                                                               ErrorStatus::InvalidArgument,
                                                               "'profile_path' capability was not a string"))));
             let profile_path = profile_path_buf.as_path();
-            let profile = try!(Profile::new(Some(profile_path)));
+            profile = try!(Profile::new(Some(profile_path)));
         } else {
             // Create an emtpy profile directory
-            let profile = try!(Profile::new(None));
+            profile = try!(Profile::new(None));
         }
 
         if let Some(profile_json) = options.get("profile") {
@@ -86,15 +87,10 @@ impl FirefoxOptions {
                                                               "Profile was not a string")));
             let profile_zip = &*try!(profile_base64.from_base64());
             try!(unzip_buffer(profile_zip,
-                              profile.temp_dir
-                              .as_ref()
-                              .expect("Profile doesn't have a path")
-                              .path()));
+                              profile.path.as_path()));
 
-            Ok(Some(profile))
-        } else {
-            Ok(None)
         }
+        Ok(Some(profile))
     }
 
     fn load_args(options: &BTreeMap<String, Json>) -> WebDriverResult<Option<Vec<String>>> {
