@@ -16,7 +16,7 @@ dependencies = [
  "slog-stdlog 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "slog-stream 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
- "webdriver 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "webdriver 0.15.0 (git+https://github.com/mozilla/webdriver-rust.git?rev=2120179eefcc5b33afbbea9c3974b9c0f914a20e)",
  "zip 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -539,7 +539,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "webdriver"
 version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/mozilla/webdriver-rust.git?rev=2120179eefcc5b33afbbea9c3974b9c0f914a20e#2120179eefcc5b33afbbea9c3974b9c0f914a20e"
 dependencies = [
  "cookie 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.9.10 (registry+https://github.com/rust-lang/crates.io-index)",

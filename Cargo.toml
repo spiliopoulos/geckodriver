@@ -25,7 +25,7 @@ slog-atomic = "0.4"
 slog-stdlog = "1"
 slog-stream = "1"
 uuid = "0.1.18"
-webdriver = "0.15.0"
+webdriver = { git = "https://github.com/mozilla/webdriver-rust.git", rev = "2120179eefcc5b33afbbea9c3974b9c0f914a20e"}
 zip = "0.1.16"
 
 [dependencies.clap]

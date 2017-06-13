@@ -24,7 +24,7 @@ use webdriver::command::{WebDriverCommand, WebDriverMessage, Parameters,
 use webdriver::command::WebDriverCommand::{
     NewSession, DeleteSession, Get, GetCurrentUrl,
     GoBack, GoForward, Refresh, GetTitle, GetPageSource, GetWindowHandle,
-    GetWindowHandles, Close, SetWindowSize,
+    GetWindowHandles, CloseWindow, SetWindowSize,
     GetWindowSize, MaximizeWindow, SwitchToWindow, SwitchToFrame,
     SwitchToParentFrame, FindElement, FindElements,
     FindElementElement, FindElementElements, GetActiveElement,
@@ -33,7 +33,7 @@ use webdriver::command::WebDriverCommand::{
     ElementClick, ElementTap, ElementClear, ElementSendKeys,
     ExecuteScript, ExecuteAsyncScript, GetCookies, GetCookie, AddCookie,
     DeleteCookies, DeleteCookie, SetTimeouts, DismissAlert,
-    AcceptAlert, GetAlertText, SendAlertText, TakeScreenshot, Extension,
+    AcceptAlert, GetAlertText, SendAlertText, TakeScreenshot, Status, TakeElementScreenshot, Extension,
     SetWindowPosition, GetWindowPosition};
 use webdriver::command::{
     NewSessionParameters, GetParameters, WindowSizeParameters, SwitchToWindowParameters,
@@ -556,10 +556,10 @@ impl MarionetteSession {
 
         Ok(match msg.command {
             //Everything that doesn't have a response value
-            Get(_) | GoBack | GoForward | Refresh | Close | SetTimeouts(_) | SetWindowPosition(_) |
+            Get(_) | GoBack | GoForward | Refresh | CloseWindow | SetTimeouts(_) | SetWindowPosition(_) |
             SetWindowSize(_) | MaximizeWindow | SwitchToWindow(_) | SwitchToFrame(_) |
             SwitchToParentFrame | AddCookie(_) | DeleteCookies | DeleteCookie(_) |
-            DismissAlert | AcceptAlert | SendAlertText(_) | ElementClick(_) |
+            DismissAlert | AcceptAlert | SendAlertText(_) | ElementClick(_) | Status |
             ElementTap(_) | ElementClear(_) | ElementSendKeys(_, _) => {
                 WebDriverResponse::Void
             },
@@ -568,7 +568,7 @@ impl MarionetteSession {
             IsSelected(_) | GetElementAttribute(_, _) | GetElementProperty(_, _) |
             GetCSSValue(_, _) | GetElementText(_) |
             GetElementTagName(_) | IsEnabled(_) | ExecuteScript(_) | ExecuteAsyncScript(_) |
-            GetAlertText | TakeScreenshot => {
+            GetAlertText | TakeScreenshot | TakeElementScreenshot(_) => {
                 let value = try_opt!(resp.result.find("value"),
                                      ErrorStatus::UnknownError,
                                      "Failed to find value field");
@@ -847,7 +847,7 @@ impl MarionetteCommand {
             GetPageSource => (Some("getPageSource"), None),
             GetWindowHandle => (Some("getWindowHandle"), None),
             GetWindowHandles => (Some("getWindowHandles"), None),
-            Close => (Some("close"), None),
+            CloseWindow => (Some("close"), None),
             SetTimeouts(ref x) => (Some("timeouts"), Some(x.to_marionette())),
             SetWindowSize(ref x) => (Some("setWindowSize"), Some(x.to_marionette())),
             GetWindowSize => (Some("getWindowSize"), None),
@@ -910,6 +910,7 @@ impl MarionetteCommand {
             ExecuteAsyncScript(ref x) => (Some("executeAsyncScript"), Some(x.to_marionette())),
             GetCookies | GetCookie(_) => (Some("getCookies"), None),
             DeleteCookies => (Some("deleteAllCookies"), None),
+            Status => (None, None),
             DeleteCookie(ref x) => {
                 let mut data = BTreeMap::new();
                 data.insert("name".to_string(), x.to_json());
@@ -930,6 +931,13 @@ impl MarionetteCommand {
             TakeScreenshot => {
                 let mut data = BTreeMap::new();
                 data.insert("id".to_string(), Json::Null);
+                data.insert("highlights".to_string(), Json::Array(vec![]));
+                data.insert("full".to_string(), Json::Boolean(false));
+                (Some("takeScreenshot"), Some(Ok(data)))
+            },
+            TakeElementScreenshot(ref e) => {
+                let mut data = BTreeMap::new();
+                data.insert("id".to_string(), e.id.to_json());
                 data.insert("highlights".to_string(), Json::Array(vec![]));
                 data.insert("full".to_string(), Json::Boolean(false));
                 (Some("takeScreenshot"), Some(Ok(data)))
